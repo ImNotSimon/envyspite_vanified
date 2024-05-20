@@ -187,30 +187,30 @@ namespace DoomahLevelLoader
             currentAssetBundleIndex = (currentAssetBundleIndex - 1 + loadedAssetBundles.Count) % loadedAssetBundles.Count;
         }
 		
-		public static void OpenFilesFolder()
-		{
-			string executablePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-			string directoryPath = Path.GetDirectoryName(executablePath);
+        public static void OpenFilesFolder()
+        {
+            string executablePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string directoryPath = Path.GetDirectoryName(executablePath);
 
-			switch (Application.platform)
-			{
-				case RuntimePlatform.WindowsEditor:
-				case RuntimePlatform.WindowsPlayer:
-					Process.Start("explorer.exe", directoryPath.Replace("/", "\\"));
-					break;
-				case RuntimePlatform.OSXEditor:
-				case RuntimePlatform.OSXPlayer:
-					Process.Start("open", directoryPath);
-					break;
-				case RuntimePlatform.LinuxEditor:
-				case RuntimePlatform.LinuxPlayer:
-					Process.Start("xdg-open", directoryPath);
-					break;
-				default:
-					UnityEngine.Debug.LogWarning("BROTHER WHAT IS YOUR OS?????");
-					break;
-			}
-		}
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    Application.OpenURL("file:///" + directoryPath.Replace("\\", "/"));
+                    break;
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    Application.OpenURL("file://" + directoryPath);
+                    break;
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                    Application.OpenURL("file://" + directoryPath);
+                    break;
+                default:
+                    UnityEngine.Debug.LogWarning("BROTHER WHAT IS YOUR OS?????");
+                    break;
+            }
+        }
 
         public static void UpdateLevelPicture(Image levelPicture, TextMeshProUGUI frownyFace, bool getFirstBundle = true, string bundlePath = "")
         {
