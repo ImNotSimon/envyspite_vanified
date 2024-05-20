@@ -25,8 +25,6 @@ namespace DoomahLevelLoader
 
         private void Awake()
         {
-            StartCoroutine(ShaderManager.LoadShadersAsync());
-
             Logger.LogInfo("If you see this, dont panick! because everything is fine :)");
             terminal = Loader.LoadTerminal();
 			
@@ -50,21 +48,25 @@ namespace DoomahLevelLoader
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (ShaderManager.shaderDictionary.Count <= 0)
+            {
+                StartCoroutine(ShaderManager.LoadShadersAsync());
+            }
             if (SceneHelper.CurrentScene == "uk_construct")
             {
-				terminalInstantiated = false;
-				Loaderscene.currentAssetBundleIndex = 0;
+                terminalInstantiated = false;
+                Loaderscene.currentAssetBundleIndex = 0;
             }
-			if (SceneHelper.CurrentScene == "Main Menu")
-			{
-				ShaderManager.CreateShaderDictionary();
+            if (SceneHelper.CurrentScene == "Main Menu")
+            {
+                ShaderManager.CreateShaderDictionary();
                 InstantiateEnvyScreen();
-			}
+            }
             if (scene.name == Loaderscene.LoadedSceneName)
             {
                 SceneHelper.CurrentScene = SceneManager.GetActiveScene().name;
                 Camera mainCamera = Camera.main;
-				IsCustomLevel = true;
+                IsCustomLevel = true;
                 if (mainCamera != null)
                 {
                     mainCamera.clearFlags = CameraClearFlags.Skybox;
@@ -75,13 +77,13 @@ namespace DoomahLevelLoader
                 }
                 StartCoroutine(ShaderManager.ApplyShadersAsyncContinuously());
             }
-			else
-			{
-				IsCustomLevel = false;
-			}
+            else
+            {
+                IsCustomLevel = false;
+            }
         }
-		
-		private void OnSceneUnloaded(Scene scene)
+
+        private void OnSceneUnloaded(Scene scene)
         {
             if (SceneHelper.CurrentScene == "uk_construct")
             {
