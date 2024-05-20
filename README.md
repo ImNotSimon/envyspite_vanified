@@ -4,3 +4,8 @@ Features:
   -Fixed Shaders
   -Clash Mode triggers (for the editor
   -A specialized tool (found in a different repo, named Vanity) for setting up the editor alongside extracting ULTRAKILL assets into said project, to be used with the editor.
+
+
+CREDITS:
+-banana studio on the Envy & Spite discord - Fixing Shaders
+-doomahreal - Original Envy & Spite
