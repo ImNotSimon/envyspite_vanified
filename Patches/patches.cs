@@ -24,7 +24,25 @@ namespace DoomahLevelLoader
 			return true;
 		}
     }
-	
+
+	[HarmonyPatch(typeof(FinalRank), "LevelChange")]
+    public static class FinalRank_LevelChangePatch
+    {
+        [HarmonyPrefix]
+        public static bool Prefix(FinalRank __instance)
+        {
+			if (!Plugin.IsCustomLevel)
+				return true;
+			
+			if (__instance.targetLevelName == null)
+				return true;
+			
+			Loaderscene.LoadedSceneName = __instance.targetLevelName;
+			Loaderscene.Loadscene();
+			return false;
+		}
+    }
+
 	[HarmonyPatch(typeof(LevelNameFinder))]
 	[HarmonyPatch("OnEnable")]
 	public static class LevelNameFinder_Patch
