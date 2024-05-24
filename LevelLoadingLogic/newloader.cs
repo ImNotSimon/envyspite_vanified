@@ -20,7 +20,7 @@ namespace DoomahLevelLoader
 		public static List<string> bundleFolderPaths = new List<string>();
 		private static EnvyLoaderMenu envyLoaderMenuScript;
 
-        public static string LoadedSceneName { get; private set; }
+        public static string LoadedSceneName { get; set; }
 
 		public static async Task Setup()
 		{
