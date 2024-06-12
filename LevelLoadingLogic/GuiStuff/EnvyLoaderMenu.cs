@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,9 +14,9 @@ namespace DoomahLevelLoader
         public GameObject ContentStuff;
         public Button MenuOpener;
         public GameObject LevelsMenu;
-		public GameObject LevelsButton;
-		public Button Goback;
-		public GameObject FuckingPleaseWait;
+        public GameObject LevelsButton;
+        public Button Goback;
+        public GameObject FuckingPleaseWait;
 
         public static EnvyLoaderMenu Instance
         {
@@ -34,109 +34,129 @@ namespace DoomahLevelLoader
                 return instance;
             }
         }
-		
-		private void Start()
+
+        private void Start()
         {
             MenuOpener.onClick.AddListener(OpenLevelsMenu);
-			Goback.onClick.AddListener(GoBackToMenu);
-			CreateLevels();
+            Goback.onClick.AddListener(GoBackToMenu);
+            EnvyLoaderMenu.CreateLevels();
         }
-		
-		public void CreateLevels()
-		{
-			for (int i = 0; i < Loaderscene.loadedAssetBundles.Count; i++)
-			{
-				GameObject buttonGO = Instantiate(LevelsButton, ContentStuff.transform);
-				Button button = buttonGO.GetComponent<Button>();
-				int index = i;
-				button.onClick.AddListener(() =>
-				{
-					Loaderscene.currentAssetBundleIndex = index;
-					Loaderscene.ExtractSceneName();
-					Loaderscene.Loadscene();
-				});
 
-				LevelButtonScript levelButtonScript = buttonGO.GetComponent<LevelButtonScript>();
+        public static void CreateLevels()
+        {
+            if (Instance == null) return;
 
-				string bundlePath = Loaderscene.bundleFolderPaths[index];
+            for (int i = 0; i < Loaderscene.loadedAssetBundles.Count; i++)
+            {
+                string bundlePath = Loaderscene.bundleFolderPaths[i];
+                string infoFilePath = Path.Combine(bundlePath, "info.txt");
 
-				Loaderscene.UpdateLevelPicture(levelButtonScript.LevelImageButtonThing, levelButtonScript.NoLevel, false, bundlePath);
-				string Size = Loaderscene.GetAssetBundleSize(index);
-				levelButtonScript.FileSize.text = Size;
+                if (!Directory.Exists(bundlePath) || !File.Exists(infoFilePath))
+                {
+                    Debug.LogWarning($"Skipping level at '{bundlePath}' because the directory or info.txt file does not exist.");
+                    continue;
+                }
 
-				string infoFilePath = Path.Combine(bundlePath, "info.txt");
-				if (File.Exists(infoFilePath))
-				{
-					try
-					{
-						string[] lines = File.ReadAllLines(infoFilePath);
-						if (lines.Length >= 2)
-						{
-							levelButtonScript.Author.text = lines[0] ?? "Failed to load Author name!";
-							levelButtonScript.LevelName.text = lines[1] ?? "Failed to load Level name!";
-						}
-						else
-						{
-							levelButtonScript.Author.text = "Failed to load Author name!";
-							levelButtonScript.LevelName.text = "Failed to load Level name!";
-						}
-					}
-					catch
-					{
-						Debug.LogError($"Failed to read info.txt in bundle folder '{bundlePath}'");
-					}
-				}
-				else
-				{
-					levelButtonScript.Author.text = "Failed to load Author name!";
-					levelButtonScript.LevelName.text = "Failed to load Level name!";
-				}
-			}
-		}
-		
-		public void ClearContentStuffChildren()
-		{
-			foreach (Transform child in ContentStuff.transform)
-			{
-				Destroy(child.gameObject);
-			}
-		}
+                GameObject buttonGO = Instantiate(Instance.LevelsButton, Instance.ContentStuff.transform);
+                Button button = buttonGO.GetComponent<Button>();
+                int index = i;
+                button.onClick.AddListener(() =>
+                {
+                    Loaderscene.currentAssetBundleIndex = index;
+                    Loaderscene.ExtractSceneName();
+                    Loaderscene.Loadscene();
+                });
 
+                LevelButtonScript levelButtonScript = buttonGO.GetComponent<LevelButtonScript>();
+
+                Loaderscene.UpdateLevelPicture(levelButtonScript.LevelImageButtonThing, levelButtonScript.NoLevel, false, bundlePath);
+                string Size = Loaderscene.GetAssetBundleSize(index);
+                levelButtonScript.FileSize.text = Size;
+
+                try
+                {
+                    string[] lines = File.ReadAllLines(infoFilePath);
+                    if (lines.Length >= 2)
+                    {
+                        levelButtonScript.Author.text = lines[0] ?? "Failed to load Author name!";
+                        levelButtonScript.LevelName.text = lines[1] ?? "Failed to load Level name!";
+                    }
+                    else
+                    {
+                        levelButtonScript.Author.text = "Failed to load Author name!";
+                        levelButtonScript.LevelName.text = "Failed to load Level name!";
+                    }
+                }
+                catch
+                {
+                    Debug.LogError($"Failed to read info.txt in bundle folder '{bundlePath}'");
+                }
+            }
+        }
+
+        public static void ClearContentStuffChildren()
+        {
+            if (Instance == null) return;
+
+            foreach (Transform child in Instance.ContentStuff.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        public static IEnumerator UpdateLevelListingCoroutine()
+        {
+            Instance.FuckingPleaseWait.SetActive(true);
+
+            ClearContentStuffChildren();
+            CreateLevels();
+
+            yield return null; // Ensure the UI updates
+
+            Instance.FuckingPleaseWait.SetActive(false);
+        }
+
+        public static void UpdateLevelListing()
+        {
+            if (Instance != null)
+            {
+                Instance.StartCoroutine(UpdateLevelListingCoroutine());
+            }
+        }
 
         private void OpenLevelsMenu()
         {
             LevelsMenu.SetActive(true);
-            
             MenuOpener.gameObject.SetActive(false);
-			MainMenuAgony.isAgonyOpen = true;
-        }        
-		
+            MainMenuAgony.isAgonyOpen = true;
+        }
+
         private void GoBackToMenu()
         {
             LevelsMenu.SetActive(false);
             MenuOpener.gameObject.SetActive(true);
-			MainMenuAgony.isAgonyOpen = false;
+            MainMenuAgony.isAgonyOpen = false;
         }
     }
-	public class DropdownHandler : MonoBehaviour
-	{
-		public TMP_Dropdown dropdown;
 
-		private const string selectedDifficultyKey = "difficulty";
-		private int savedDifficulty = MonoSingleton<PrefsManager>.Instance.GetInt(selectedDifficultyKey, 2);
+    public class DropdownHandler : MonoBehaviour
+    {
+        public TMP_Dropdown dropdown;
 
-		private void OnEnable()
-		{
-			MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, 2);
-			dropdown.value = savedDifficulty;
-			
-			dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
-		}
+        private const string selectedDifficultyKey = "difficulty";
+        private int savedDifficulty = MonoSingleton<PrefsManager>.Instance.GetInt(selectedDifficultyKey, 2);
 
-		public void OnDropdownValueChanged(int index)
-		{
-			MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, index);
-		}
-	}
+        private void OnEnable()
+        {
+            MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, 2);
+            dropdown.value = savedDifficulty;
 
+            dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+        }
+
+        public void OnDropdownValueChanged(int index)
+        {
+            MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, index);
+        }
+    }
 }
