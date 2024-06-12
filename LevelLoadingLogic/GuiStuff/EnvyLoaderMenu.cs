@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using TMPro;
+using Newtonsoft.Json;
+using System.Reflection;
 
 namespace DoomahLevelLoader
 {
@@ -53,7 +55,7 @@ namespace DoomahLevelLoader
 
                 if (!Directory.Exists(bundlePath) || !File.Exists(infoFilePath))
                 {
-                    Debug.LogWarning($"Skipping level at '{bundlePath}' because the directory or info.txt file does not exist.");
+                    Debug.LogWarning($"Skipping level at '{bundlePath}' because the directory or info.txt file does not exist. (or has been deleted)");
                     continue;
                 }
 
@@ -111,7 +113,7 @@ namespace DoomahLevelLoader
             ClearContentStuffChildren();
             CreateLevels();
 
-            yield return null; // Ensure the UI updates
+            yield return null;
 
             Instance.FuckingPleaseWait.SetActive(false);
         }
@@ -144,19 +146,49 @@ namespace DoomahLevelLoader
         public TMP_Dropdown dropdown;
 
         private const string selectedDifficultyKey = "difficulty";
-        private int savedDifficulty = MonoSingleton<PrefsManager>.Instance.GetInt(selectedDifficultyKey, 2);
+        private string settingsFilePath;
+
+        private void Awake()
+        {
+            settingsFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "settings.json");
+        }
 
         private void OnEnable()
         {
-            MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, 2);
+            int savedDifficulty = LoadDifficulty();
             dropdown.value = savedDifficulty;
-
             dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+        }
+
+        private int LoadDifficulty()
+        {
+            if (File.Exists(settingsFilePath))
+            {
+                string json = File.ReadAllText(settingsFilePath);
+                Dictionary<string, int> settings = JsonConvert.DeserializeObject<Dictionary<string, int>>(json);
+
+                if (settings != null && settings.TryGetValue(selectedDifficultyKey, out int difficulty))
+                {
+                    return difficulty;
+                }
+            }
+            return 2;
+        }
+
+        private void SaveDifficulty(int difficulty)
+        {
+            Dictionary<string, int> settings = new Dictionary<string, int>
+            {
+                { selectedDifficultyKey, difficulty }
+            };
+
+            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(settingsFilePath, json);
         }
 
         public void OnDropdownValueChanged(int index)
         {
-            MonoSingleton<PrefsManager>.Instance.SetInt(selectedDifficultyKey, index);
+            SaveDifficulty(index);
         }
     }
 }
