@@ -23,6 +23,11 @@ namespace DoomahLevelLoader
 		
         public static Plugin Instance => _instance;
 
+        public static async Task foldershitAsync()
+        {
+            await Loaderscene.RecreateUnpackedLevelsFolder(Loaderscene.GetUnpackedLevelsPath());
+        }
+
         private void Awake()
         {
             Logger.LogInfo("If you see this, dont panick! because everything is fine :)");
@@ -43,7 +48,7 @@ namespace DoomahLevelLoader
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.sceneUnloaded -= OnSceneUnloaded;
-			await Loaderscene.DeleteUnpackedLevelsFolder();
+			await foldershitAsync();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -60,6 +65,7 @@ namespace DoomahLevelLoader
             if (SceneHelper.CurrentScene == "Main Menu")
             {
                 ShaderManager.CreateShaderDictionary();
+                _ = foldershitAsync();
                 InstantiateEnvyScreen();
             }
             if (scene.name == Loaderscene.LoadedSceneName)
@@ -92,6 +98,7 @@ namespace DoomahLevelLoader
 			if (SceneHelper.CurrentScene == "Main Menu")
 			{
 				InstantiateEnvyScreen();
+                _ = foldershitAsync();
                 ShaderManager.CreateShaderDictionary();
             }
         }
