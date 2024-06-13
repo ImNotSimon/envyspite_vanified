@@ -53,9 +53,9 @@ namespace DoomahLevelLoader
                 string bundlePath = Loaderscene.bundleFolderPaths[i];
                 string infoFilePath = Path.Combine(bundlePath, "info.txt");
 
-                if (!Directory.Exists(bundlePath) || !File.Exists(infoFilePath))
+                if (!Directory.Exists(bundlePath))
                 {
-                    Debug.LogWarning($"Skipping level at '{bundlePath}' because the directory or info.txt file does not exist. (or has been deleted)");
+                    Debug.LogWarning($"Skipping level at '{bundlePath}' because the directory does not exist.");
                     continue;
                 }
 
@@ -74,7 +74,6 @@ namespace DoomahLevelLoader
                 Loaderscene.UpdateLevelPicture(levelButtonScript.LevelImageButtonThing, levelButtonScript.NoLevel, false, bundlePath);
                 string Size = Loaderscene.GetAssetBundleSize(index);
                 levelButtonScript.FileSize.text = Size;
-
                 try
                 {
                     string[] lines = File.ReadAllLines(infoFilePath);
