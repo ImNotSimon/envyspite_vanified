@@ -46,7 +46,7 @@ namespace DoomahLevelLoader
                 Directory.Delete(unpackedLevelsPath, true);
             }
             Directory.CreateDirectory(unpackedLevelsPath);
-            string[] doomahFiles = Directory.GetFiles(directoryPath, "*.doomah");
+            string[] doomahFiles = Directory.GetFiles(Plugin.getConfigPath(), "*.doomah");
             foreach (string doomahFile in doomahFiles)
             {
                 string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(doomahFile);
@@ -183,15 +183,15 @@ namespace DoomahLevelLoader
             {
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    Application.OpenURL("file:///" + directoryPath.Replace("\\", "/"));
+                    Application.OpenURL("file:///" + Plugin.getConfigPath().Replace("\\", "/"));
                     break;
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.OSXPlayer:
-                    Application.OpenURL("file://" + directoryPath);
+                    Application.OpenURL("file://" + Plugin.getConfigPath());
                     break;
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
-                    Application.OpenURL("file://" + directoryPath);
+                    Application.OpenURL("file://" + Plugin.getConfigPath());
                     break;
                 default:
                     UnityEngine.Debug.LogWarning("BROTHER WHAT IS YOUR OS?????");
