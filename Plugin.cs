@@ -9,6 +9,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Threading.Tasks;
 using Logic;
 using System.Reflection;
+using System.IO;
 
 namespace DoomahLevelLoader
 {
@@ -20,12 +21,18 @@ namespace DoomahLevelLoader
         private Shader loadedShader;
 		public static bool IsCustomLevel = false;
         private static Plugin _instance;
-		
-        public static Plugin Instance => _instance;
+
+
+         public static Plugin Instance => _instance;
 
         public static async Task foldershitAsync()
         {
             await Loaderscene.RecreateUnpackedLevelsFolder(Loaderscene.GetUnpackedLevelsPath());
+        }
+
+        public static string getConfigPath()
+        {
+            return Path.Combine(Paths.ConfigPath + Path.DirectorySeparatorChar + "EnvyLevels");
         }
 
         private void Awake()
@@ -37,6 +44,11 @@ namespace DoomahLevelLoader
 
             Harmony val = new Harmony("doomahreal.ultrakill.levelloader");
             val.PatchAll();
+
+            if(!Directory.Exists(getConfigPath()))
+            {
+                Directory.CreateDirectory(getConfigPath());
+            }
 			
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.sceneUnloaded += OnSceneUnloaded;		
