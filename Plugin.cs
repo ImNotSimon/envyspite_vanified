@@ -17,7 +17,6 @@ namespace DoomahLevelLoader
     public class Plugin : BaseUnityPlugin
     {
         private AssetBundle terminal;
-		private bool terminalInstantiated = false;
         private Shader loadedShader;
 		public static bool IsCustomLevel = false;
         private static Plugin _instance;
@@ -71,8 +70,6 @@ namespace DoomahLevelLoader
             }
             if (SceneHelper.CurrentScene == "uk_construct")
             {
-                terminalInstantiated = false;
-                Loaderscene.currentAssetBundleIndex = 0;
             }
             if (SceneHelper.CurrentScene == "Main Menu")
             {
@@ -105,7 +102,6 @@ namespace DoomahLevelLoader
         {
             if (SceneHelper.CurrentScene == "uk_construct")
             {
-                terminalInstantiated = false; 
             }
 			if (SceneHelper.CurrentScene == "Main Menu")
 			{
@@ -122,11 +118,6 @@ namespace DoomahLevelLoader
 		
 		private void Update()
         {
-            if (SceneHelper.CurrentScene == "uk_construct" && terminal != null && !terminalInstantiated)
-            {
-                InstantiateTerminal();
-                terminalInstantiated = true;
-            }
         }
 		
 		private void InstantiateEnvyScreen()
